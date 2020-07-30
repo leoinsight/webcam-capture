@@ -1,10 +1,7 @@
 package example;
 
 import nu.pattern.OpenCV;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
+import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -23,18 +20,20 @@ public class OpencvExample {
 
         // finger detection with hsv
         String savePath = "src/main/resources";
-        String imagePath = new File(savePath + "/finger_pointing_to_words_02.jpg").getAbsolutePath();
+        String imagePath = new File(savePath + "/hand.jpg").getAbsolutePath();
         // convert source image to HSV
         Mat srcImage = loadImage(imagePath);
+        Mat blurImage = new Mat();
         Mat hsvImage = new Mat();
-        Imgproc.cvtColor(srcImage, hsvImage, Imgproc.COLOR_BGR2HSV);
+        Imgproc.blur(srcImage, blurImage, new Size(7, 7));  // remove some noise
+        Imgproc.cvtColor(blurImage, hsvImage, Imgproc.COLOR_BGR2HSV);
         // mask hsv image
         Scalar scalarLower = new Scalar(0, 0.28*255, 0);
         Scalar scalarUpper = new Scalar(25, 0.68*255, 255);
         Mat maskedImage = new Mat();
         Core.inRange(hsvImage, scalarLower, scalarUpper, maskedImage);
         // save masked image
-        saveImage(maskedImage, savePath + "/finger_detected_02.jpg");
+        saveImage(maskedImage, savePath + "/hand_detected.jpg");
     }
 
     // load image
