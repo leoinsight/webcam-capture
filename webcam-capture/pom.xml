@@ -84,13 +84,32 @@
       <version>2.31</version>
     </dependency>
 
-
     <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>2.11.1</version>
     </dependency>
+
+    <!-- opencv for java -->
+    <dependency>
+      <groupId>org.openpnp</groupId>
+      <artifactId>opencv</artifactId>
+      <version>4.3.0-2</version>
+    </dependency>
+
+    <!-- javacv -->
+    <!--<dependency>
+      <groupId>org.bytedeco</groupId>
+      <artifactId>javacv-platform</artifactId>
+      <version>1.5.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bytedeco</groupId>
+      <artifactId>javacpp-presets-platform</artifactId>
+      <version>1.5.3</version>
+      <type>pom</type>
+    </dependency>-->
 
   </dependencies>
 
