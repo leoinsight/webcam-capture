@@ -30,8 +30,8 @@ public class OpencvExample {
         Imgproc.blur(srcImage, blurImage, new Size(7, 7));  // remove some noise
         Imgproc.cvtColor(blurImage, hsvImage, Imgproc.COLOR_BGR2HSV);
         // mask hsv image
-        Scalar scalarLower = new Scalar(0, 0.28*255, 0);
-        Scalar scalarUpper = new Scalar(25, 0.68*255, 255);
+        Scalar scalarLower = new Scalar(0, 30, 0);
+        Scalar scalarUpper = new Scalar(15, 255, 255);
         Mat maskedImage = new Mat();
         Core.inRange(hsvImage, scalarLower, scalarUpper, maskedImage);
         // save masked image
@@ -86,4 +86,20 @@ public class OpencvExample {
         imgcodecs.imwrite(targetPath, imageMatrix);
     }
 
+    // find max contour
+    public static MatOfPoint findMaxContour(List<MatOfPoint> contours) {
+        MatOfPoint maxContour = new MatOfPoint();
+        for (int i = 0; i < contours.size(); i++) {
+            MatOfPoint contour = contours.get(i);
+
+            Rect rect = Imgproc.boundingRect(contour);
+            if(rect.width > rect.height) continue;
+
+            if(i == 0) maxContour = contour;
+            double contourArea = Imgproc.contourArea(contour);
+            double maxContourArea = Imgproc.contourArea(maxContour);
+            if(contourArea > maxContourArea) maxContour = contour;
+        }
+        return maxContour;
+    }
 }
