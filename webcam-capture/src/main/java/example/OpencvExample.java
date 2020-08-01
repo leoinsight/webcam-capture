@@ -1,5 +1,6 @@
 package example;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import nu.pattern.OpenCV;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -9,6 +10,8 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.opencv.core.CvType.CV_32FC2;
 
 public class OpencvExample {
 
@@ -53,8 +56,32 @@ public class OpencvExample {
         Imgproc.findContours(morphImage, contours, hierarchy, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
         // draw contours
         Mat contImage = srcImage.clone();
-        Imgproc.drawContours(contImage, contours,-1, new Scalar(0, 255, 0), 2);
+        Imgproc.drawContours(contImage, contours, -1, new Scalar(0, 255, 0), 2);
         saveImage(contImage, savePath + "/gongcha_menu_contour.png");
+
+        int centerX = srcImage.width() / 2;
+        int bottom = srcImage.height() - 1;
+        MatOfPoint maxContour = new MatOfPoint();
+//        for (int i = 0; i < contours.size(); i++) {
+            MatOfPoint cont = contours.get(0);
+            Point[] pointArr = cont.toArray();
+            for (int j = 0; j < pointArr.length; j++) {
+                Imgproc.drawMarker(contImage, pointArr[j], new Scalar(0, 255, 0), 1);
+                // center x of src image is between min and max x value of contour?
+//                if ()
+
+                System.out.println("contour point:" + pointArr[j].x + "," + pointArr[j].y);
+            }
+//        }
+
+        // determines whether the point is inside a contour
+        Point pt = new Point(centerX, bottom-1);
+        MatOfPoint2f con2 = new MatOfPoint2f();
+        cont.convertTo(con2, CV_32FC2);
+        double pointInContour = Imgproc.pointPolygonTest(con2, pt, false);
+        System.out.println("src image center x:" + centerX);
+        System.out.println("src image max y-1:" + bottom);
+        System.out.println("point is inside?:" + pointInContour);
 
         // draw convex hull
         MatOfPoint points = contours.get(0);
