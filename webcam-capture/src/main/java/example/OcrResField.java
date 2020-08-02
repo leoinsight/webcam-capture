@@ -7,7 +7,7 @@ public class OcrResField {
     private String inferText;
     private float inferConfidence;
     private String type;
-    BoundingPoly BoundingPolyObject;
+    private BoundingPoly boundingPoly;
 
     // Getter Methods
 
@@ -28,7 +28,7 @@ public class OcrResField {
     }
 
     public BoundingPoly getBoundingPoly() {
-        return BoundingPolyObject;
+        return boundingPoly;
     }
 
     // Setter Methods
@@ -49,13 +49,13 @@ public class OcrResField {
         this.type = type;
     }
 
-    public void setBoundingPoly(BoundingPoly boundingPolyObject) {
-        this.BoundingPolyObject = boundingPolyObject;
+    public void setBoundingPoly(BoundingPoly boundingPoly) {
+        this.boundingPoly = boundingPoly;
     }
 }
 
 class BoundingPoly {
-    ArrayList<Vertex> vertices = new ArrayList<Vertex>();
+    private ArrayList<Vertex> vertices = new ArrayList<Vertex>();
 
     public ArrayList<Vertex> getVertices() {
         return vertices;
