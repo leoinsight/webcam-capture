@@ -54,52 +54,25 @@ public class OpencvExample {
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
         Imgproc.findContours(morphImage, contours, hierarchy, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
-        // draw contours
-        Mat contImage = srcImage.clone();
-        Imgproc.drawContours(contImage, contours, -1, new Scalar(0, 255, 0), 2);
-        saveImage(contImage, savePath + "/gongcha_menu_contour.png");
 
+        // get finger contour
         int centerX = srcImage.width() / 2;
-        int bottom = srcImage.height() - 1;
-        MatOfPoint maxContour = new MatOfPoint();
-//        for (int i = 0; i < contours.size(); i++) {
-            MatOfPoint cont = contours.get(0);
-            Point[] pointArr = cont.toArray();
-            for (int j = 0; j < pointArr.length; j++) {
-                Imgproc.drawMarker(contImage, pointArr[j], new Scalar(0, 255, 0), 1);
-                // center x of src image is between min and max x value of contour?
-//                if ()
+        int bottomY = srcImage.height();
+        Point pt = new Point(centerX, bottomY - 1);
+        MatOfPoint fingerCont = getFingerContour(contours, pt);
+        // draw contours
+        Mat contourImage = srcImage.clone();
+        List<MatOfPoint> contList = new ArrayList<>();
+        contList.add(fingerCont);
+        Imgproc.drawContours(contourImage, contList, -1, new Scalar(0, 255, 0), 2);
+        saveImage(contourImage, savePath + "/gongcha_menu_contour.png");
 
-                System.out.println("contour point:" + pointArr[j].x + "," + pointArr[j].y);
-            }
-//        }
-
-        // determines whether the point is inside a contour
-        Point pt = new Point(centerX, bottom-1);
-        MatOfPoint2f con2 = new MatOfPoint2f();
-        cont.convertTo(con2, CV_32FC2);
-        double pointInContour = Imgproc.pointPolygonTest(con2, pt, false);
-        System.out.println("src image center x:" + centerX);
-        System.out.println("src image max y-1:" + bottom);
-        System.out.println("point is inside?:" + pointInContour);
-
-        // draw convex hull
-        MatOfPoint points = contours.get(0);
-        List<MatOfPoint> hullList = new ArrayList<>();
-        for (MatOfPoint contour : contours) {
-            MatOfInt hull = new MatOfInt();
-            Imgproc.convexHull(points, hull);
-            Point[] contourArray = points.toArray();
-            Point[] hullPoints = new Point[hull.rows()];
-            List<Integer> hullContourIdxList = hull.toList();
-            for (int i = 0; i < hullContourIdxList.size(); i++) {
-                hullPoints[i] = contourArray[hullContourIdxList.get(i)];
-            }
-            hullList.add(new MatOfPoint(hullPoints));
-        }
-        Mat convImage = contImage.clone();
-        Imgproc.drawContours(convImage, hullList, -1, new Scalar(0, 0, 255), 2);
-        saveImage(convImage, savePath + "/gongcha_menu_convex_hull.png");
+//        // get convex hull
+//        List<MatOfPoint> convexHull = getConvexHull(contours);
+//        // draw convex hull
+//        Mat convexImage = contourImage.clone();
+//        Imgproc.drawContours(convexImage, convexHull, -1, new Scalar(0, 0, 255), 2);
+//        saveImage(convexImage, savePath + "/gongcha_menu_convex_hull.png");
     }
 
     // load image
@@ -111,6 +84,30 @@ public class OpencvExample {
     public static void saveImage(Mat imageMatrix, String targetPath) {
         Imgcodecs imgcodecs = new Imgcodecs();
         imgcodecs.imwrite(targetPath, imageMatrix);
+    }
+
+    /**
+     * get a finger contour <br>
+     *  - determines whether the point is inside a contour
+     * @param contours
+     * @return
+     */
+    public static MatOfPoint getFingerContour(List<MatOfPoint> contours, Point pt) {
+        MatOfPoint fingerCont = new MatOfPoint();
+        for (int i = 0; i < contours.size(); i++) {
+            MatOfPoint cont = contours.get(i);
+            MatOfPoint2f con2 = new MatOfPoint2f();
+            cont.convertTo(con2, CV_32FC2);
+            double pointInContour = Imgproc.pointPolygonTest(con2, pt, false);
+            System.out.println("src image point(center,bottom-1): (" + pt.x + "," + pt.y + ")");
+            System.out.println("point is inside or on edge?:" + (pointInContour > -1.0 ? "Yes" : "No"));
+            if (pointInContour > -1) {
+                System.out.println("pointInCountour index:" + i);
+                fingerCont = cont;
+                break;
+            }
+        }
+        return fingerCont;
     }
 
     // find max contour
@@ -128,5 +125,24 @@ public class OpencvExample {
             if(contourArea > maxContourArea) maxContour = contour;
         }
         return maxContour;
+    }
+
+    // get Convex hull
+    public static List<MatOfPoint> getConvexHull(List<MatOfPoint> contours) {
+        // draw convex hull
+        List<MatOfPoint> hullList = new ArrayList<>();
+        for (int i=0; i<contours.size(); i++) {
+            MatOfPoint points = contours.get(i);
+            MatOfInt hull = new MatOfInt();
+            Imgproc.convexHull(points, hull);
+            Point[] contourArray = points.toArray();
+            Point[] hullPoints = new Point[hull.rows()];
+            List<Integer> hullContourIdxList = hull.toList();
+            for (int j = 0; j < hullContourIdxList.size(); j++) {
+                hullPoints[j] = contourArray[hullContourIdxList.get(j)];
+            }
+            hullList.add(new MatOfPoint(hullPoints));
+        }
+        return hullList;
     }
 }
